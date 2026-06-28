@@ -56,7 +56,9 @@ export function safeHref(href: string | null | undefined): SafeHrefResult {
   if (!scheme) return { ok: false };
 
   if (UNSAFE_SCHEMES.has(scheme)) return { ok: false };
-  if (scheme === "http:" || scheme === "https:") return { ok: true, href: trimmed };
+  if ((scheme === "http:" || scheme === "https:") && trimmed.length > scheme.length) {
+    return { ok: true, href: trimmed };
+  }
 
   return { ok: false };
 }

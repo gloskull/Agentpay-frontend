@@ -67,8 +67,8 @@ export function ConfirmDialog({
 
     const dialog = dialogRef.current;
     if (dialog) {
-      const [firstFocusable] = getFocusableElements(dialog);
-      (firstFocusable ?? dialog).focus();
+      const [first] = getFocusableElements(dialog);
+      (first ?? dialog).focus();
     }
 
     return () => {
@@ -90,9 +90,7 @@ export function ConfirmDialog({
 
     if (event.key !== "Tab") return;
 
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-
+    const dialog = event.currentTarget;
     const focusableElements = getFocusableElements(dialog);
     if (focusableElements.length === 0) {
       event.preventDefault();

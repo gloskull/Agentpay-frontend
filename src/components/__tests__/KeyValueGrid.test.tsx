@@ -45,5 +45,29 @@ describe("KeyValueGrid", () => {
     expect(screen.queryByRole("term")).not.toBeInTheDocument();
     expect(screen.queryByRole("definition")).not.toBeInTheDocument();
   });
+
+  it("handles non-string labels and values correctly for aria-labels", () => {
+    const rows = [
+      { label: <span data-testid="label">Complex Label</span>, value: <div data-testid="value">Complex Value</div> },
+    ];
+    render(<KeyValueGrid rows={rows} />);
+    const dt = screen.getByTestId("label").parentElement!;
+    const dd = screen.getByTestId("value").parentElement!;
+
+    expect(dt).not.toHaveAttribute("aria-label");
+    expect(dd).not.toHaveAttribute("aria-label");
+  });
+
+  it("sets aria-label for string and number values", () => {
+    const rows = [
+      { label: "Label 1", value: 42 },
+    ];
+    render(<KeyValueGrid rows={rows} />);
+    const dt = screen.getByRole("term", { name: "Label 1" });
+    const dd = screen.getByRole("definition", { name: "42" });
+
+    expect(dt).toHaveAttribute("aria-label", "Label 1");
+    expect(dd).toHaveAttribute("aria-label", "42");
+  });
 });
 

@@ -51,6 +51,8 @@ describe("safeHref", () => {
     // scheme is not explicitly http(s).
     expect(safeHref("//example.com" as string)).toEqual({ ok: false });
     expect(safeHref("//example.com" as string)).toEqual({ ok: false });
+    expect(safeHref(" : ")).toEqual({ ok: false });
+    expect(safeHref("http: ")).toEqual({ ok: false });
   });
 });
 

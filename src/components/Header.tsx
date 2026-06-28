@@ -71,14 +71,20 @@ function MobileNav({
   }, [menuOpen, setMenuOpen]);
 
   useEffect(() => {
-    if (menuOpen) {
-      const first = panelRef.current?.querySelector<HTMLElement>(
+    const panel = panelRef.current;
+    if (menuOpen && panel) {
+      const first = panel.querySelector<HTMLElement>(
         "a[role='menuitem'], a, [role='menuitem']"
       );
-      first?.focus?.();
-      return;
+      if (first) {
+        first.focus();
+      }
+    } else if (!menuOpen) {
+      const toggle = toggleRef.current;
+      if (toggle) {
+        toggle.focus();
+      }
     }
-    toggleRef.current?.focus?.();
   }, [menuOpen]);
 
   return (
