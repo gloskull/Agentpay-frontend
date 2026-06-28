@@ -155,5 +155,82 @@ describe("Header", () => {
     const homeLink = screen.getByRole("link", { name: "Home" });
     expect(homeLink.className).toContain("focus-visible:outline");
   });
+
+  it("manages focus when opening and closing the mobile menu", () => {
+    mockPathname.mockReturnValue("/");
+    render(<Header />);
+    const toggle = getMobileToggle();
+
+    // Open mobile menu
+    fireEvent.click(toggle);
+    const homeMenuItem = screen.getByRole("menuitem", { name: "Home" });
+    expect(document.activeElement).toBe(homeMenuItem);
+
+    // Close mobile menu
+    fireEvent.click(toggle);
+    expect(document.activeElement).toBe(toggle);
+  });
+
+  it("handles secondary links in mobile menu", () => {
+    mockPathname.mockReturnValue("/api-keys");
+    render(<Header />);
+    const toggle = getMobileToggle();
+
+    // Open mobile menu
+    fireEvent.click(toggle);
+
+    const apiKeysLink = screen.getByRole("menuitem", { name: "API Keys" });
+    expect(apiKeysLink).toHaveAttribute("aria-current", "page");
+    expect(apiKeysLink.className).toContain("text-blue-600");
+
+    // Click it to close
+    fireEvent.click(apiKeysLink);
+    expect(screen.queryByRole("region", { name: /mobile navigation/i })).not.toBeInTheDocument();
+  });
+
+  it("closes the More menu when clicking the button again", () => {
+    mockPathname.mockReturnValue("/");
+    render(<Header />);
+    const moreBtn = screen.getByRole("button", { name: /more/i });
+    fireEvent.click(moreBtn);
+    expect(moreBtn).toHaveAttribute("aria-expanded", "true");
+    fireEvent.click(moreBtn);
+    expect(moreBtn).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("does not close the More menu when focus moves inside it", () => {
+    mockPathname.mockReturnValue("/");
+    render(<Header />);
+    fireEvent.click(screen.getByRole("button", { name: /more/i }));
+    const menu = screen.getByRole("menu");
+    const item = screen.getByRole("menuitem", { name: "API Keys" });
+
+    fireEvent.blur(menu, {
+      relatedTarget: item,
+    });
+
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+  });
+
+  it("closes the More menu on route change", () => {
+    mockPathname.mockReturnValue("/");
+    const { rerender } = render(<Header />);
+    fireEvent.click(screen.getByRole("button", { name: /more/i }));
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+
+    mockPathname.mockReturnValue("/services");
+    rerender(<Header />);
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+  });
+
+  it("handles primary links in mobile menu", () => {
+    mockPathname.mockReturnValue("/");
+    render(<Header />);
+    fireEvent.click(getMobileToggle());
+
+    const servicesLink = screen.getByRole("menuitem", { name: "Services" });
+    fireEvent.click(servicesLink);
+    expect(screen.queryByRole("region", { name: /mobile navigation/i })).not.toBeInTheDocument();
+  });
 });
 

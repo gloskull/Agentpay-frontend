@@ -261,5 +261,59 @@ describe("ConfirmDialog", () => {
     fireEvent.click(cancelButton);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
+
+  it("handles keyboard navigation when only one action is focusable and it is currently active", () => {
+    render(<ConfirmDialogHarness />);
+    const { dialog, cancelButton, confirmButton } = openDialog();
+    confirmButton.setAttribute("disabled", "true");
+
+    cancelButton.focus();
+    fireEvent.keyDown(dialog, { key: "Tab" });
+    expect(cancelButton).toHaveFocus();
+
+    fireEvent.keyDown(dialog, { key: "Tab", shiftKey: true });
+    expect(cancelButton).toHaveFocus();
+  });
+
+  it("handles keyboard navigation when focus is not inside the dialog", () => {
+    render(<ConfirmDialogHarness />);
+    const { dialog, cancelButton } = openDialog();
+
+    const outside = screen.getByText("Outside action");
+    outside.focus();
+    expect(outside).toHaveFocus();
+
+    fireEvent.keyDown(dialog, { key: "Tab" });
+    expect(cancelButton).toHaveFocus();
+  });
+
+  it("focuses the dialog container if no elements are focusable on mount", () => {
+    // Mock querySelectorAll to return an empty list for focusable elements
+    const querySpy = jest.spyOn(Element.prototype, "querySelectorAll").mockImplementation(function(this: Element, selector: string) {
+      if (selector.includes("button") || selector.includes("a[")) {
+        return {
+          length: 0,
+          item: () => null,
+          forEach: () => {},
+          [Symbol.iterator]: function* () {},
+        } as any;
+      }
+      return Array.from(this.children) as any;
+    });
+
+    render(
+      <ConfirmDialog
+        open
+        title="Mocked empty"
+        onConfirm={jest.fn()}
+        onCancel={jest.fn()}
+      />
+    );
+
+    const dialog = document.body.querySelector('[role="dialog"]')!;
+    expect(document.activeElement).toBe(dialog);
+
+    querySpy.mockRestore();
+  });
 });
 

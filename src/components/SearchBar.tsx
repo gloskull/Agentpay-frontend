@@ -41,7 +41,10 @@ export function SearchBar({
 
   function clearSearch() {
     onChange("");
-    inputRef.current?.focus();
+    const input = inputRef.current;
+    if (input) {
+      input.focus();
+    }
   }
 
   return (

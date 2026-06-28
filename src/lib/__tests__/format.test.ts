@@ -77,9 +77,14 @@ describe("safeStringify", () => {
   });
 
   it("replaces functions and undefined leaves with safe markers", () => {
-    const result = safeStringify({ fn: () => undefined, missing: undefined });
+    const result = safeStringify({
+      fn: () => undefined,
+      missing: undefined,
+      s: Symbol("foo")
+    });
     expect(result).toContain("[Function]");
     expect(result).toContain("[undefined]");
+    expect(result).toContain("[Symbol]");
   });
 
   it("truncates oversized payloads and appends the visible marker", () => {
@@ -136,5 +141,10 @@ describe("safeFormatTimestamp", () => {
     // The renderer uses the em dash by default so the missing-time placeholder
     // doesn't visually collide with a numeric timestamp.
     expect(safeFormatTimestamp(NaN)).toBe("\u2014");
+  });
+
+  it("handles invalid dates from the Date constructor", () => {
+    // Some numeric inputs can lead to 'Invalid Date' objects
+    expect(safeFormatTimestamp(8.64e15 + 1)).toBe("\u2014");
   });
 });

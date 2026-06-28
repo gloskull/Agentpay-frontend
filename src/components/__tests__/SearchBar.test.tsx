@@ -88,4 +88,11 @@ describe("SearchBar", () => {
     expect(onChange).toHaveBeenCalledWith("");
     expect(input).toHaveFocus();
   });
+
+  it("uses the provided id for the input and label", () => {
+    render(<SearchBar value="" onChange={jest.fn()} id="custom-search-id" />);
+    const input = screen.getByRole("searchbox");
+    expect(input.id).toBe("custom-search-id");
+    expect(screen.getByText("Search")).toHaveAttribute("for", "custom-search-id");
+  });
 });
